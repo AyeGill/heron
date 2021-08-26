@@ -14,6 +14,7 @@ pub use layers::{CollisionLayers, PhysicsLayer};
 pub use physics_time::PhysicsTime;
 pub use step::{PhysicsStepDuration, PhysicsSteps};
 pub use velocity::{Acceleration, AxisAngle, Velocity};
+pub use joints::{Joint, JointSpec, Isometry};
 
 mod constraints;
 mod events;
@@ -24,6 +25,9 @@ mod physics_time;
 mod step;
 pub mod utils;
 mod velocity;
+mod joints;
+
+struct Foo;
 
 #[deprecated(
     note = "Physics system can be added to the bevy update stage. Use bevy's add_system instead."

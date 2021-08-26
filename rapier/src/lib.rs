@@ -32,6 +32,8 @@ mod pipeline;
 pub use pipeline::{PhysicsWorld, RayCastInfo, ShapeCastCollisionInfo, ShapeCastCollisionType};
 mod shape;
 mod velocity;
+mod joints;
+
 
 /// Plugin that enables collision detection and physics behavior, powered by rapier.
 #[must_use]
@@ -64,6 +66,7 @@ impl Plugin for RapierPlugin {
                     .add_stage("heron-remove", removal_stage())
                     .add_stage("heron-update-rapier-world", update_rapier_world_stage())
                     .add_stage("heron-create-new-bodies", body_update_stage())
+                    .add_stage("heron-create-new-joints", joints_update_stage())
                     .add_stage("heron-create-new-colliders", create_collider_stage())
             })
             .add_system_set_to_stage(CoreStage::PostUpdate, step_systems());
@@ -74,8 +77,10 @@ fn removal_stage() -> SystemStage {
     SystemStage::single_threaded()
         .with_system(body::remove_invalids_after_components_removed.system())
         .with_system(shape::remove_invalids_after_components_removed.system())
+        .with_system(joints::remove_invalids_after_components_removed.system())
         .with_system(body::remove_invalids_after_component_changed.system())
         .with_system(shape::remove_invalids_after_component_changed.system())
+        .with_system(joints::remove_invalids_after_component_changed.system())
 }
 
 fn update_rapier_world_stage() -> SystemStage {
@@ -105,6 +110,11 @@ fn body_update_stage() -> SystemStage {
 
 fn create_collider_stage() -> SystemStage {
     SystemStage::single_threaded().with_system(shape::create.system())
+}
+
+
+fn joints_update_stage() -> SystemStage {
+    SystemStage::single_threaded().with_system(joints::create.system())
 }
 
 fn step_systems() -> SystemSet {

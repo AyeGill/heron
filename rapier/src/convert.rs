@@ -158,6 +158,20 @@ impl IntoRapier<Isometry<f32>> for (Vec3, Quat) {
     }
 }
 
+impl IntoRapier<Isometry<f32>> for (Vec3, AxisAngle){
+    fn into_rapier(self) -> Isometry<f32> {
+        Isometry::from_parts(self.0.into_rapier(), Quat::from(self.1).into_rapier())
+    }
+}
+
+impl IntoRapier<Isometry<f32>> for heron_core::Isometry {
+    fn into_rapier(self) -> Isometry<f32> {
+        match self {
+            heron_core::Isometry {trans: t, rot: r} => (t,r).into_rapier()
+        }
+    }
+}
+
 impl IntoRapier<f32> for AxisAngle {
     fn into_rapier(self) -> f32 {
         if self.axis().z > 0.0 {
