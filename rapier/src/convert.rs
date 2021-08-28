@@ -166,9 +166,8 @@ impl IntoRapier<Isometry<f32>> for (Vec3, AxisAngle){
 
 impl IntoRapier<Isometry<f32>> for heron_core::Isometry {
     fn into_rapier(self) -> Isometry<f32> {
-        match self {
-            heron_core::Isometry {trans: t, rot: r} => (t,r).into_rapier()
-        }
+        let (rot,trans) = self.to_rotation_translation();
+        (trans,rot).into_rapier()
     }
 }
 
