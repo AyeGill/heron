@@ -25,16 +25,16 @@ for now at least, we just delete the Joint component instead.
 */
 
 pub(crate) fn create(
-    mut commands: Commands,
+    mut commands: Commands<'_>,
     mut bodies: ResMut<'_, RigidBodySet>,
-    mut joints: ResMut<JointSet>,
-    joint_query: Query<
+    mut joints: ResMut<'_, JointSet>,
+    joint_query: Query<'_,
             (
                 Entity,
                 &Joint,
             ),
         Without<JointHandle>>,
-    body_query: Query<&RigidBodyHandle>
+    body_query: Query<'_, &RigidBodyHandle>
 ) {
     use heron_core::JointSpec::*;
     for (entity, joint) in joint_query.iter() {
@@ -47,7 +47,7 @@ pub(crate) fn create(
                 return;
             }
         };
-        let b2 = match body_query.get(joint.entity_1) {
+        let b2 = match body_query.get(joint.entity_2) {
             Ok(b) => *b,
             Err(_) => {
                 commands.entity(entity).remove::<Joint>();
@@ -80,12 +80,12 @@ pub(crate) fn create(
 }
 
 pub(crate) fn remove_invalids_after_components_removed(
-    mut commands: Commands,
-    mut joints: ResMut<JointSet>,
-    mut islands: ResMut<IslandManager>,
-    mut bodies: ResMut<RigidBodySet>,
-    joints_removed: RemovedComponents<Joint>,
-    joint_handles: Query<&JointHandle>,
+    mut commands: Commands<'_>,
+    mut joints: ResMut<'_, JointSet>,
+    mut islands: ResMut<'_, IslandManager>,
+    mut bodies: ResMut<'_, RigidBodySet>,
+    joints_removed: RemovedComponents<'_, Joint>,
+    joint_handles: Query<'_, &JointHandle>,
 ) {
     for entity in joints_removed.iter() {
         if let Ok(handle)= joint_handles.get(entity) {
@@ -96,11 +96,11 @@ pub(crate) fn remove_invalids_after_components_removed(
 }
 
 pub(crate) fn remove_invalids_after_component_changed(
-    mut commands: Commands,
-    mut joints: ResMut<JointSet>,
-    mut islands: ResMut<IslandManager>,
-    mut bodies: ResMut<RigidBodySet>,
-    changed: Query<(Entity, &JointHandle), Changed<Joint>>
+    mut commands: Commands<'_>,
+    mut joints: ResMut<'_, JointSet>,
+    mut islands: ResMut<'_, IslandManager>,
+    mut bodies: ResMut<'_, RigidBodySet>,
+    changed: Query<'_, (Entity, &JointHandle), Changed<Joint>>
 ) {
 // If you change the joint data, we delete the joint,
 // then the next time the create() system runs, you'll get a new joint

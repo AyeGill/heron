@@ -1,7 +1,6 @@
 use bevy::math::prelude::*;
 use bevy::ecs::prelude::*;
 use bevy::reflect::prelude::*;
-use duplicate::duplicate;
 use crate::velocity::AxisAngle;
 
 
@@ -37,10 +36,16 @@ pub enum JointSpec {
     },
 }
 
-impl JointSpec {
-    /// creates a ball joint "centered on" entity 1 with entity moving around it
-    fn ball_arm(arm: Vec3) -> JointSpec {
-        JointSpec::Ball {point_1: Vec3::ZERO, point_2: arm}
+impl Joint {
+    pub fn ball_arm(e1 : Entity, e2: Entity, arm: Vec3) -> Joint {
+        Joint {
+            entity_1: e1,
+            entity_2: e2,
+            spec: JointSpec::Ball {
+                point_1: Vec3::zero(),
+                point_2: arm
+            }
+        }
     }
 }
 

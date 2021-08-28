@@ -27,8 +27,6 @@ pub mod utils;
 mod velocity;
 mod joints;
 
-struct Foo;
-
 #[deprecated(
     note = "Physics system can be added to the bevy update stage. Use bevy's add_system instead."
 )]
