@@ -43,6 +43,7 @@ pub enum JointSpec {
     /// about a specific axis. You must specify the points where the bodies
     /// should be fixed, and the axis of rotation in both bodies' local
     /// coordinate system.
+    /// In 2d, simply treated as a BallJoint with the given points.
     Revolute {
         /// The point on the first body.
         point_1: Vec3,
@@ -133,8 +134,8 @@ impl Joint {
                         entity_2: e2,
                         spec: JointSpec::Fixed {
                             iso_1: Isometry::default(),
-                            iso_2: Isometry::from(*trans_1)
-                                .mul(Isometry::from(*trans_2).inverse())
+                            iso_2: Isometry::from(*trans_2)
+                                .inverse().mul(Isometry::from(*trans_1))
                             //We're basically enforcing
                             // iso_1 * trans_1 = iso_2 * trans_2
                             // so putting iso_1 = 1 and
