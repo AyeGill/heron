@@ -137,14 +137,30 @@ impl Joint {
                             iso_2: Isometry::from(*trans_2)
                                 .inverse().mul(Isometry::from(*trans_1))
                             //We're basically enforcing
-                            // iso_1 * trans_1 = iso_2 * trans_2
+                            // trans_1 * iso_1 = trans_2 * iso_2
                             // so putting iso_1 = 1 and
-                            // iso_2 = trans_1 * trans_2^{-1} works.
+                            // iso_2 = trans_2^{-1} * trans_1 works.
                         }
                     }
                 )
             }
         else {None}
+    }
+    pub fn fixed_with_transforms(
+        e1: Entity,
+        e2: Entity,
+        t1: GlobalTransform,
+        t2: GlobalTransform
+    ) -> Joint {
+        Joint {
+            entity_1: e1,
+            entity_2: e2,
+            spec: JointSpec::Fixed {
+                iso_1: Isometry::default(),
+                iso_2: Isometry::from(t2)
+                    .inverse().mul(Isometry::from(t1))
+            }
+        }
     }
     /// Create a prismatic joint for the two entities, using their current
     /// positions. The joint is on the given point and axis given in the

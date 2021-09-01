@@ -152,7 +152,7 @@ fn setup_system(
     mut commands: Commands,
     mut events: EventWriter<ReadyEvent>
 ) {
-    let e1 = commands.spawn_bundle(mk_body(Vec3::ZERO)).id();
+    let e1 = commands.spawn_bundle(mk_body(Vec3::X + Vec3::Y)).id();
     let e2 = commands.spawn_bundle(mk_body(Vec3::X)).id();
     events.send(ReadyEvent(e1,e2));
 }
@@ -205,7 +205,7 @@ fn fixed_joint_current() {
         let e2 = (*joint).entity_2;
         let t1 = app.world.get::<GlobalTransform>(e1).unwrap();
         let t2 = app.world.get::<GlobalTransform>(e2).unwrap();
-        assert_eq!(t1.translation, Vec3::ZERO);
+        assert_eq!(t1.translation, Vec3::X + Vec3::Y);
         assert_eq!(t2.translation, Vec3::X);
     }
 }
