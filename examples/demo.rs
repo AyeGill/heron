@@ -45,7 +45,7 @@ fn spawn(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>,
     // The Ball
     let size = Vec2::new(30.0, 30.0);
     let pos_1 = Vec3::new(-400.0, 200.0, 0.0);
-    let pos_2 = Vec3::new(-400.0 + 50.0, 200.0, 0.0);
+    let pos_2 = Vec3::new(-400.0 + 30.0, 200.0, 0.0);
     let ball_1 = commands
         // Spawn a bundle that contains at least a `GlobalTransform`
         .spawn_bundle(SpriteBundle {
@@ -93,10 +93,10 @@ fn spawn(mut commands: Commands, mut materials: ResMut<Assets<ColorMaterial>>,
             ..Default::default()
         })
         .id();
-    // A fixed joint
-    commands.spawn().insert(Joint::fixed_with_transforms(
+    // A ball joint
+    commands.spawn().insert(Joint::ball_with_transforms(
         ball_1,ball_2,GlobalTransform::from_translation(pos_1),
-        GlobalTransform::from_translation(pos_2)));
+        GlobalTransform::from_translation(pos_2), Vec3::new(15.0,-15.0,0.0)));
 }
 
 fn log_collisions(mut events: EventReader<CollisionEvent>) {

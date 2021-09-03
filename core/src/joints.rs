@@ -101,19 +101,11 @@ impl Joint {
         transforms: Query<'_, &GlobalTransform>,
         e1: Entity,
         e2: Entity,
-        pt: Vec3
+        pt1: Vec3
     ) -> Option<Joint> {
         if let (Ok(trans_1),Ok(trans_2)) =
             (transforms.get(e1),transforms.get(e2)) {
-                Some(
-                    Joint {
-                    entity_1: e1,
-                    entity_2: e2,
-                    spec: JointSpec::Ball {
-                        point_1: pt,
-                        point_2: conversion_matrix(*trans_2, *trans_1).transform_point3(pt)
-                    }
-                })
+                Some(Joint::ball_with_transforms(e1, e2, *trans_1, *trans_2, pt1))
             } else {
                 None
             }
@@ -128,24 +120,43 @@ impl Joint {
     ) -> Option<Joint> {
         if let (Ok(trans_1),Ok(trans_2)) =
             (transforms.get(e1),transforms.get(e2)) {
-                Some(
-                    Joint {
-                        entity_1: e1,
-                        entity_2: e2,
-                        spec: JointSpec::Fixed {
-                            iso_1: Isometry::default(),
-                            iso_2: Isometry::from(*trans_2)
-                                .inverse().mul(Isometry::from(*trans_1))
-                            //We're basically enforcing
-                            // trans_1 * iso_1 = trans_2 * iso_2
-                            // so putting iso_1 = 1 and
-                            // iso_2 = trans_2^{-1} * trans_1 works.
-                        }
-                    }
-                )
+                Some(Joint::fixed_with_transforms(e1, e2, *trans_1, *trans_2))
             }
         else {None}
     }
+
+    /// Create a prismatic joint for the two entities, using their current
+    /// positions. The joint is on the given point and axis given in the
+    /// coordinate system of the *first* entity.
+    pub fn revolute_current(
+        transforms: Query<'_, &GlobalTransform>,
+        e1: Entity,
+        e2: Entity,
+        pt1: Vec3,
+        ax1: Vec3,
+    ) -> Option<Joint> {
+        if let(Ok(trans_1),Ok(trans_2)) =
+            (transforms.get(e1),transforms.get(e2)) {
+                Some(Joint::revolute_with_transforms(e1, e2, *trans_1, *trans_2, pt1, ax1))
+            } else {None}
+    }
+
+    /// Create a prismatic joint for the two entities, using their current
+    /// positions. The joint is on the given point and axis given in the
+    /// coordinate system of the *first* entity.
+    pub fn prismatic_current(
+        transforms: Query<'_, &GlobalTransform>,
+        e1: Entity,
+        e2: Entity,
+        pt1: Vec3,
+        ax1: Vec3,
+    ) -> Option<Joint> {
+        if let(Ok(trans_1),Ok(trans_2)) =
+            (transforms.get(e1),transforms.get(e2)) {
+                Some(Joint::prismatic_with_transforms(e1, e2, *trans_1, *trans_2, pt1, ax1))
+            } else {None}
+    }
+
     pub fn fixed_with_transforms(
         e1: Entity,
         e2: Entity,
@@ -162,61 +173,63 @@ impl Joint {
             }
         }
     }
-    /// Create a prismatic joint for the two entities, using their current
-    /// positions. The joint is on the given point and axis given in the
-    /// coordinate system of the *first* entity.
-    pub fn revolute_current(
-        transforms: Query<'_, &GlobalTransform>,
+    pub fn ball_with_transforms(
         e1: Entity,
         e2: Entity,
-        pt: Vec3,
-        ax: Vec3,
-    ) -> Option<Joint> {
-        if let(Ok(trans_1),Ok(trans_2)) =
-            (transforms.get(e1),transforms.get(e2)) {
-                let convers_mat = conversion_matrix(*trans_2, *trans_1);
-                Some(
-                    Joint {
-                        entity_1: e1,
-                        entity_2: e2,
-                        spec: JointSpec::Revolute {
-                            point_1: pt,
-                            axis_1: ax,
-                            point_2: convers_mat.transform_point3(pt),
-                            axis_2: convers_mat.transform_vector3(ax),
-                        },
-                    }
-                )
-            } else {None}
+        t1: GlobalTransform,
+        t2: GlobalTransform,
+        pt1: Vec3,
+    ) -> Joint {
+        Joint {
+            entity_1: e1,
+            entity_2: e2,
+            spec: JointSpec::Ball {
+                point_1: pt1,
+                point_2: conversion_matrix(t2, t1).transform_point3(pt1)
+            }
+        }
+    }
+    pub fn revolute_with_transforms(
+        e1: Entity,
+        e2: Entity,
+        t1: GlobalTransform,
+        t2: GlobalTransform,
+        pt1: Vec3,
+        ax1: Vec3,
+    ) -> Joint {
+        Joint {
+            entity_1: e1,
+            entity_2: e2,
+            spec: JointSpec::Revolute {
+                point_1: pt1,
+                axis_1: ax1,
+                point_2: conversion_matrix(t2, t1).transform_point3(pt1),
+                axis_2: conversion_matrix(t2, t1).transform_vector3(ax1)
+            }
+        }
     }
 
-    /// Create a prismatic joint for the two entities, using their current
-    /// positions. The joint is on the given point and axis given in the
-    /// coordinate system of the *first* entity.
-    pub fn prismatic_current(
-        transforms: Query<'_, &GlobalTransform>,
+    pub fn prismatic_with_transforms(
         e1: Entity,
         e2: Entity,
-        pt: Vec3,
-        ax: Vec3,
-    ) -> Option<Joint> {
-        if let(Ok(trans_1),Ok(trans_2)) =
-            (transforms.get(e1),transforms.get(e2)) {
-                let convers_mat = conversion_matrix(*trans_2, *trans_1);
-                Some(
-                    Joint {
-                        entity_1: e1,
-                        entity_2: e2,
-                        spec: JointSpec::Prismatic {
-                            point_1: pt,
-                            axis_1: ax,
-                            point_2: convers_mat.transform_point3(pt),
-                            axis_2: convers_mat.transform_vector3(ax),
-                        },
-                    }
-                )
-            } else {None}
+        t1: GlobalTransform,
+        t2: GlobalTransform,
+        pt1: Vec3,
+        ax1: Vec3
+    ) -> Joint {
+        Joint {
+            entity_1: e1,
+            entity_2: e2,
+            spec: JointSpec::Prismatic {
+                point_1: pt1,
+                axis_1: ax1,
+                point_2: conversion_matrix(t2,t1).transform_point3(pt1),
+                axis_2: conversion_matrix(t2,t1).transform_vector3(ax1),
+            },
+        }
     }
+
+
 }
 
 fn conversion_matrix(to: GlobalTransform, from: GlobalTransform) -> Mat4 {
