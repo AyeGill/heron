@@ -5,6 +5,7 @@ use bevy::reflect::prelude::*;
 use crate::velocity::AxisAngle; //might be better to factor this out?
 
 
+
 #[derive(Debug, Copy, Clone, PartialEq, Reflect)]
 ///A rapier Joint component.
 pub struct Joint {
@@ -157,6 +158,7 @@ impl Joint {
             } else {None}
     }
 
+    /// Like `fixed_current`, but uses the specified GlobalTransforms instead of querying it from the entities.
     pub fn fixed_with_transforms(
         e1: Entity,
         e2: Entity,
@@ -173,6 +175,7 @@ impl Joint {
             }
         }
     }
+    /// Like `ball_current`, but uses the specified GlobalTransforms instead of querying it from the entities.
     pub fn ball_with_transforms(
         e1: Entity,
         e2: Entity,
@@ -189,6 +192,7 @@ impl Joint {
             }
         }
     }
+    /// Like `revolute_current`, but uses the specified GlobalTransforms instead of querying it from the entities.
     pub fn revolute_with_transforms(
         e1: Entity,
         e2: Entity,
@@ -208,7 +212,7 @@ impl Joint {
             }
         }
     }
-
+    /// Like `prismatic_current`, but uses the specified GlobalTransforms instead of querying it from the entities.
     pub fn prismatic_with_transforms(
         e1: Entity,
         e2: Entity,
