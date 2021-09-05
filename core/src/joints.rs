@@ -7,7 +7,8 @@ use crate::velocity::AxisAngle; //might be better to factor this out?
 
 
 #[derive(Debug, Copy, Clone, PartialEq, Reflect)]
-///A rapier Joint component.
+/// A rapier Joint component.
+/// The two entities need to have both RigidBody and CollisionShape components
 pub struct Joint {
     ///The entity corresponding to the first body in the joint.
     pub entity_1: Entity,
